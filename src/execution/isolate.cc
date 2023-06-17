@@ -3856,6 +3856,22 @@ void Isolate::InitializeLoggingAndCounters() {
   InitializeCounters();
 }
 
+void Isolate::DebugPrintBuiltinsInfo() {
+  Isolate* isolate = this;
+  Builtins* builtins = isolate->builtins();
+  EmbeddedData d = EmbeddedData::FromBlob(isolate);
+
+  base::OS::PrintError("--- Builtin Functions Info Start ---\n");
+  base::OS::PrintError("%-100s %s\n", "Function", "EntryPoint");
+  for (Builtin builtin = Builtins::kFirst; builtin <= Builtins::kLast;
+       ++builtin) {
+    Address instruction_start = d.InstructionStartOfBuiltin(builtin);
+    const char* builtin_name = builtins->name(builtin);
+    base::OS::PrintError("%-100s 0x%lx\n", builtin_name, instruction_start);
+  }
+  base::OS::PrintError("--- Builtin Functions Info End ---\n");
+}
+
 namespace {
 
 void CreateOffHeapTrampolines(Isolate* isolate) {

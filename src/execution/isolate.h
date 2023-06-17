@@ -660,6 +660,8 @@ class V8_EXPORT_PRIVATE Isolate final : private HiddenFactory {
   void InitializeLoggingAndCounters();
   bool InitializeCounters();  // Returns false if already initialized.
 
+  void DebugPrintBuiltinsInfo();
+
   bool InitWithoutSnapshot();
   bool InitWithSnapshot(SnapshotData* startup_snapshot_data,
                         SnapshotData* read_only_snapshot_data,
