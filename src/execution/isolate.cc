@@ -3856,18 +3856,27 @@ void Isolate::InitializeLoggingAndCounters() {
   InitializeCounters();
 }
 
-void Isolate::DebugPrintBuiltinsInfo() {
+void Isolate::PrintBuiltinInfo() {
+  DCHECK(v8_flags.print_builtin_info);
   Isolate* isolate = this;
   Builtins* builtins = isolate->builtins();
   EmbeddedData d = EmbeddedData::FromBlob(isolate);
 
   base::OS::PrintError("--- Builtin Functions Info Start ---\n");
-  base::OS::PrintError("%-100s %s\n", "Function", "EntryPoint");
+  base::OS::PrintError("%-80s %-10s %-20s %-20s %-10s\n",
+                       "Function", "Kind", "Code Start", "Code End",
+                       "Code Size");
   for (Builtin builtin = Builtins::kFirst; builtin <= Builtins::kLast;
        ++builtin) {
-    Address instruction_start = d.InstructionStartOfBuiltin(builtin);
     const char* builtin_name = builtins->name(builtin);
-    base::OS::PrintError("%-100s 0x%lx\n", builtin_name, instruction_start);
+    const char* builtin_kind = builtins->KindNameOf(builtin);
+    Address instruction_start = d.InstructionStartOfBuiltin(builtin);
+    uint32_t instruction_size = d.InstructionSizeOfBuiltin(builtin);
+    Address instruction_end = d.InstructionEndOf(builtin);
+    base::OS::PrintError("%-80s %-10s 0x%-18lx 0x%-18lx 0x%-8x\n",
+                         builtin_name, builtin_kind,
+                         instruction_start, instruction_end,
+                         instruction_size);
   }
   base::OS::PrintError("--- Builtin Functions Info End ---\n");
 }
@@ -4476,6 +4485,7 @@ bool Isolate::Init(SnapshotData* startup_snapshot_data,
 
   if (v8_flags.print_builtin_code) builtins()->PrintBuiltinCode();
   if (v8_flags.print_builtin_size) builtins()->PrintBuiltinSize();
+  if (v8_flags.print_builtin_info) this->PrintBuiltinInfo();
 
   // Finish initialization of ThreadLocal after deserialization is done.
   clear_pending_exception();
