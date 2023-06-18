@@ -8940,7 +8940,8 @@ void Isolate::Initialize(Isolate* v8_isolate,
   i::Isolate* i_isolate = reinterpret_cast<i::Isolate*>(v8_isolate);
   TRACE_EVENT_CALL_STATS_SCOPED(i_isolate, "v8", "V8.IsolateInitialize");
 
-  i_isolate->DebugPrintBuiltinsInfo();
+  if (i::v8_flags.print_builtin_info)
+    i_isolate->DebugPrintBuiltinsInfo();
 
   if (auto allocator = params.array_buffer_allocator_shared) {
     CHECK(params.array_buffer_allocator == nullptr ||
